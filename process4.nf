@@ -45,19 +45,57 @@ process minimap_align {
 }
 
 process sam_to_bam {
-  // Set an output directory separate to work dir for bam files only
-  publishDir params.outdir, mode:'copy'
-  // publishDir params.outdir, mode:'copy',
-  // saveAs: { filename -> if (filename.endsWith(".bam")) filename }
+  publishDir params.outdir, mode:'copy',
+  saveAs: { filename -> if (filename.endsWith(".bam")) filename }
 
   input:
   file sam from ch_sam
 
   output:
-  file "*.bam" into ch_bam
+  file "*.bam" into ch_demo //ch_stats, ch_qc
 
   script:
   """
   samtools view -Sb $sam | samtools sort -o ${sam.baseName}.bam -
+  """
+}
+
+ch_demo.into { ch_stats;
+               ch_qc}
+
+process stats {
+  publishDir params.outdir, mode:'copy'
+
+  input:
+  file bam from ch_stats
+
+  output:
+  file "*.flagstat" into ch_flagstat
+
+  script:
+  """
+  samtools flagstat $bam > ${bam.baseName}.bam.flagstat
+  """
+}
+
+process custom_qc {
+  publishDir params.outdir, mode:'copy'
+
+  input:
+  file bam from ch_qc
+
+  output:
+  file "*.flagstat" into ch_flagstat
+
+  script:
+  """
+  #!/usr/bin/python
+
+  import subprocess
+
+  read_count = subprocess.check_output(["samtools", "view", "-F 2304 -c", "$bam"])
+  read_count_aligned_genome = subprocess.check_output(["samtools", "view", "-F 0x904 -c", "$bam"])
+  print("Read Count = "+read_count)
+  print("Read Count Aligned to Genome = "+read_count_aligned_genome)
   """
 }

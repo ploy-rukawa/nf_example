@@ -1,5 +1,7 @@
+// Defining command line parameters
 params.ref = ""
 params.input = ""
+// Set default value
 params.outdir = "./nf_workshop/results/"
 
 

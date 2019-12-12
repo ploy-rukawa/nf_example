@@ -11,15 +11,18 @@ log.info """\
          """
          .stripIndent()
 
+ // Create a channel from file path
  ch_ref = Channel.fromPath("$params.ref", checkIfExists:true)
  // ch_ref.println()
 
+// Process definintion
 process create_mmi {
 
   input:
   file genome from ch_ref
 
   output:
+  // Can use wildcards
   file "*mmi" into ch_mmi
 
   script:
