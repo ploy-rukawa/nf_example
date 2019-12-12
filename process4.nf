@@ -80,12 +80,10 @@ process stats {
 
 process custom_qc {
   publishDir params.outdir, mode:'copy'
+  echo true
 
   input:
   file bam from ch_qc
-
-  output:
-  file "*.flagstat" into ch_flagstat
 
   script:
   """
@@ -93,8 +91,8 @@ process custom_qc {
 
   import subprocess
 
-  read_count = subprocess.check_output(["samtools", "view", "-F 2304 -c", "$bam"])
-  read_count_aligned_genome = subprocess.check_output(["samtools", "view", "-F 0x904 -c", "$bam"])
+  read_count = subprocess.check_output(["samtools", "view", "-F", "2304", "-c", "$bam"])
+  read_count_aligned_genome = subprocess.check_output(["samtools", "view", "-F", "0x904", "-c", "$bam"])
   print("Read Count = "+read_count)
   print("Read Count Aligned to Genome = "+read_count_aligned_genome)
   """
