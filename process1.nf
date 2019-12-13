@@ -23,10 +23,11 @@ process create_mmi {
 
   output:
   // Can use wildcards
-  file "*mmi" into ch_mmi
+  file mmi_name into ch_mmi
 
   script:
+  mmi_name = "${genome.baseName}.mmi"
   """
-  minimap2 -ax splice -uf -t $task.cpus -d ${genome.baseName}.mmi $genome
+  minimap2 -ax splice -uf -t $task.cpus -d $mmi_name $genome
   """
 }
